@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+</head>
+<body>
+<h1>ToDo List</h1>
+
+<div>
+    <label for="taskTitle">Title:</label>
+    <input type="text" id="taskTitle" placeholder="Enter task title">
+
+    <label for="taskDescription">Description:</label>
+    <input type="text" id="taskDescription" placeholder="Enter task description">
+    <button onclick="addTask()">Add Task</button>
+</div>
+
+<ul id="taskList"></ul>
+
+<script>
+    function addTask() {
+        const taskTitleInput = document.getElementById('taskTitle');
+        const taskDescriptionInput = document.getElementById('taskDescription');
+        const taskTitle = taskTitleInput.value;
+        const taskDescription = taskDescriptionInput.value;
+
+        if (taskTitle.trim() === '') {
+            alert('Please enter a task title.');
+            return;
+        }
+
+        // Отправка запроса к серверу
+        fetch('/tasks/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title: taskTitle,
+                description: taskDescription,
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Обработка успешного ответа
+                console.log(data);
+                // После успешного добавления задачи, обновляем список задач
+                fetchTasks();
+            })
+            .catch(error => {
+                // Обработка ошибки
+                console.error('Error:', error);
+            });
+    }
+
+    function fetchTasks() {
+        // Запрос на сервер для получения обновленного списка задач
+        fetch('/tasks/')
+            .then(response => response.json())
+            .then(tasks => {
+                // Обработка полученных задач, например, обновление списка на странице
+                console.log('Updated tasks:', tasks);
+                // Дополнительная логика, если необходимо
+            })
+            .catch(error => {
+                // Обработка ошибки
+                console.error('Error fetching tasks:', error);
+            });
+    }
+
+    // При загрузке страницы выполняем запрос на получение задач
+    window.onload = fetchTasks;
+</script>
+</body>
+</html>
